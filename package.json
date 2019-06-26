@@ -28,6 +28,7 @@
   "devDependencies": {
     "commitizen": "^3.1.1",
     "cz-conventional-changelog": "^2.1.0",
+    "pm2": "^3.5.1",
     "vuepress": "^0.10.0"
   },
   "config": {
