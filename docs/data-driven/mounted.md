@@ -4,6 +4,9 @@ Vue 中我们是通过 `$mount` 实例方法去挂载 `vm` 的，`$mount` 方法
 
 `compiler` 版本的 `$mount` 实现非常有意思，先来看一下 `src/platform/web/entry-runtime-with-compiler.js` 文件中定义：
 
+> vue/src/platforms/web/entry-runtime-with-compiler.js
+
+
 ```js
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
@@ -15,6 +18,7 @@ Vue.prototype.$mount = function (
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
+      // 不要将Vue安装到<html>或<body>-而是安装到普通元素
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
     return this
@@ -22,6 +26,7 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  // 解析模板/el并转换为render函数
   if (!options.render) {
     let template = options.template
     if (template) {
@@ -31,6 +36,7 @@ Vue.prototype.$mount = function (
           /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !template) {
             warn(
+              // 模板元素未找到或为空
               `Template element not found or is empty: ${options.template}`,
               this
             )
@@ -40,6 +46,7 @@ Vue.prototype.$mount = function (
         template = template.innerHTML
       } else {
         if (process.env.NODE_ENV !== 'production') {
+          // 模板选项无效
           warn('invalid template option:' + template, this)
         }
         return this
@@ -64,6 +71,7 @@ Vue.prototype.$mount = function (
 
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+        // 编译结束
         mark('compile end')
         measure(`vue ${this._name} compile`, 'compile', 'compile end')
       }

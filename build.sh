@@ -9,6 +9,6 @@ git init
 git add -A
 git commit -m 'deploy'
 
-git push -f git@github.com:ustbhuangyi/vue-analysis.git master:gh-pages
+git push -f git@github.com:qiufeihong2018/vue-analysis.git master:gh-pages
 
 cd -
