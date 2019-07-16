@@ -2,6 +2,7 @@
 
 Vue 的 `_update` 是实例的一个私有方法，它被调用的时机有 2 个，一个是首次渲染，一个是数据更新的时候；由于我们这一章节只分析首次渲染部分，数据更新部分会在之后分析响应式原理的时候涉及。`_update` 方法的作用是把 VNode 渲染成真实的 DOM，它的定义在 `src/core/instance/lifecycle.js` 中：
 
+> vue/src/core/instance/lifecycle.js
 ```js
 Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
   const vm: Component = this
@@ -12,11 +13,13 @@ Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
   vm._vnode = vnode
   // Vue.prototype.__patch__ is injected in entry points
   // based on the rendering backend used.
+  // Vue.prototype.__patch__是在入口点被注入
+  // 基于服务端渲染
   if (!prevVnode) {
-    // initial render
+    // initial render 初始化渲染
     vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
   } else {
-    // updates
+    // updates 更新
     vm.$el = vm.__patch__(prevVnode, vnode)
   }
   activeInstance = prevActiveInstance
@@ -27,12 +30,14 @@ Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
   if (vm.$el) {
     vm.$el.__vue__ = vm
   }
-  // if parent is an HOC, update its $el as well
+  // if parent is an HOC, update its $el as well 如果父级是临时的，也要更新它的$el
   if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
     vm.$parent.$el = vm.$el
   }
   // updated hook is called by the scheduler to ensure that children are
   // updated in a parent's updated hook.
+  // 调度程序调用更新的hook以确保子级
+  //在父级的更新钩子中更新。
 }
 ```
 
@@ -44,6 +49,7 @@ Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 可以看到，甚至在 web 平台上，是否是服务端渲染也会对这个方法产生影响。因为在服务端渲染中，没有真实的浏览器 DOM 环境，所以不需要把 VNode 最终转换成 DOM，因此是一个空函数，而在浏览器端渲染中，它指向了 `patch` 方法，它的定义在 `src/platforms/web/runtime/patch.js`中：
 
+> vue/src/platforms/web/runtime/patch.js
 ```js
 import * as nodeOps from 'web/runtime/node-ops'
 import { createPatchFunction } from 'core/vdom/patch'
@@ -52,6 +58,8 @@ import platformModules from 'web/runtime/modules/index'
 
 // the directive module should be applied last, after all
 // built-in modules have been applied.
+//指令模块应该最后应用，毕竟
+//已应用内置模块。
 const modules = platformModules.concat(baseModules)
 
 export const patch: Function = createPatchFunction({ nodeOps, modules })
@@ -89,19 +97,22 @@ export function createPatchFunction (backend) {
     const insertedVnodeQueue = []
 
     if (isUndef(oldVnode)) {
-      // empty mount (likely as component), create new root element
+      // empty mount (likely as component), create new root element 空装载（可能是组件），创建新的根元素
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
-        // patch existing root node
+        // patch existing root node 现有根节点
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
           // a successful hydration.
+          //装入实际元素
+          //检查这是否是服务器呈现的内容，以及是否可以执行
+          //成功的水合作用。
           if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
             oldVnode.removeAttribute(SSR_ATTR)
             hydrating = true
@@ -111,6 +122,11 @@ export function createPatchFunction (backend) {
               invokeInsertHook(vnode, insertedVnodeQueue, true)
               return oldVnode
             } else if (process.env.NODE_ENV !== 'production') {
+              // 客户端呈现的虚拟DOM树不匹配
+              // 服务器呈现的内容。这可能是由不正确的引起的
+              // HTML标记，例如在内部嵌套块级元素
+              // <p>，或缺少<tbody>。提水和表演
+              // 完整客户端呈现
               warn(
                 'The client-side rendered virtual DOM tree is not matching ' +
                 'server-rendered content. This is likely caused by incorrect ' +
@@ -122,10 +138,13 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
+          //要么未呈现服务器，要么水合失败。
+          //创建一个空节点并替换它
           oldVnode = emptyNodeAt(oldVnode)
         }
 
         // replacing existing element
+        // 取代已存在的元素
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
 
@@ -136,11 +155,15 @@ export function createPatchFunction (backend) {
           // extremely rare edge case: do not insert if old element is in a
           // leaving transition. Only happens when combining transition +
           // keep-alive + HOCs. (#4590)
+          //极其罕见的边缘大小写：如果旧元素位于
+          //离开转换。仅在组合转换时发生+
+          //保持活跃+hocs。（4590）
           oldElm._leaveCb ? null : parentElm,
           nodeOps.nextSibling(oldElm)
         )
 
         // update parent placeholder node element, recursively
+        //递归更新父占位符节点元素
         if (isDef(vnode.parent)) {
           let ancestor = vnode.parent
           const patchable = isPatchable(vnode)
@@ -156,9 +179,12 @@ export function createPatchFunction (backend) {
               // #6513
               // invoke insert hooks that may have been merged by create hooks.
               // e.g. for directives that uses the "inserted" hook.
+              //调用可能已被create hooks合并的insert hooks。
+              //例如，对于使用“inserted”挂钩的指令。
               const insert = ancestor.data.hook.insert
               if (insert.merged) {
                 // start at index 1 to avoid re-invoking component mounted hook
+                //从索引1开始，以避免重新调用组件安装的挂钩
                 for (let i = 1; i < insert.fns.length; i++) {
                   insert.fns[i]()
                 }
@@ -229,13 +255,16 @@ vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
 ```js
 const isRealElement = isDef(oldVnode.nodeType)
 if (!isRealElement && sameVnode(oldVnode, vnode)) {
-  // patch existing root node
+  // patch existing root node 现有根节点
   patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
 } else {
   if (isRealElement) {
     // mounting to a real element
     // check if this is server-rendered content and if we can perform
     // a successful hydration.
+    //装入实际元素
+    //检查这是否是服务器呈现的内容，以及是否可以执行
+    // 以及成功的水合作用。
     if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
       oldVnode.removeAttribute(SSR_ATTR)
       hydrating = true
@@ -245,6 +274,11 @@ if (!isRealElement && sameVnode(oldVnode, vnode)) {
         invokeInsertHook(vnode, insertedVnodeQueue, true)
         return oldVnode
       } else if (process.env.NODE_ENV !== 'production') {
+//客户端呈现的虚拟DOM树不匹配
+// 服务器呈现的内容。这可能是由不正确的''引起的
+// HTML标记，例如在内部嵌套块级元素
+// <p>，或缺少<tbody>。提水和表演
+// 完整客户端呈现
         warn(
           'The client-side rendered virtual DOM tree is not matching ' +
           'server-rendered content. This is likely caused by incorrect ' +
@@ -294,6 +328,11 @@ function createElm (
     // potential patch errors down the road when it's used as an insertion
     // reference node. Instead, we clone the node on-demand before creating
     // associated DOM element for it.
+    //此Vnode在以前的渲染中使用过！
+    //现在它被用作一个新节点，覆盖其ELM将导致
+    //用作插入时可能会出现补丁错误
+    //引用节点。相反，我们在创建
+    //关联的DOM元素。
     vnode = ownerArray[index] = cloneVNode(vnode)
   }
 
@@ -311,6 +350,9 @@ function createElm (
         creatingElmInVPre++
       }
       if (isUnknownElement(vnode, creatingElmInVPre)) {
+        // 未知自定义元素：<'+tag+'>
+        // 是正确注册组件吗？对于递归组件，
+        // 确保提供“name”选项
         warn(
           'Unknown custom element: <' + tag + '> - did you ' +
           'register the component correctly? For recursive components, ' +

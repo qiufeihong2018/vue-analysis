@@ -2,9 +2,13 @@
 
 Vue.js 利用 createElement 方法创建 VNode，它定义在 `src/core/vdom/create-elemenet.js` 中：
 
+> src/core/vdom/create-elemenet.js
+
 ```js
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
+//包装函数，用于提供更灵活的接口
+//不会被水流冲得大喊大叫
 export function createElement (
   context: Component,
   tag: any,
@@ -36,6 +40,8 @@ export function _createElement (
   normalizationType?: number
 ): VNode | Array<VNode> {
   if (isDef(data) && isDef((data: any).__ob__)) {
+    // 避免将观察到的数据对象用作Vnode数据
+    // 始终在每个渲染中创建新的Vnode数据对象
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
       'Always create fresh vnode data objects in each render!',
@@ -43,19 +49,21 @@ export function _createElement (
     )
     return createEmptyVNode()
   }
-  // object syntax in v-bind
+  // object syntax in v-bind v-bind中的对象语法
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
   }
   if (!tag) {
-    // in case of component :is set to falsy value
+    // in case of component :is set to falsy value 如果是组件：设置为错误值
     return createEmptyVNode()
   }
-  // warn against non-primitive key
+  // warn against non-primitive key 对非基元键发出警告
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
   ) {
     if (!__WEEX__ || !('@binding' in data.key)) {
+      // 避免使用非基元值作为键
+      // 改为使用字符串/数字值。
       warn(
         'Avoid using non-primitive value as key, ' +
         'use string/number value instead.',
@@ -63,7 +71,7 @@ export function _createElement (
       )
     }
   }
-  // support single function children as default scoped slot
+  // support single function children as default scoped slot 支持单个函数子级作为默认作用域槽
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {
@@ -93,13 +101,16 @@ export function _createElement (
       // unknown or unlisted namespaced elements
       // check at runtime because it may get assigned a namespace when its
       // parent normalizes children
+      //未知或未列出的命名空间元素
+      //在运行时检查，因为它可能在
+      //父级规范化子级  
       vnode = new VNode(
         tag, data, children,
         undefined, undefined, context
       )
     }
   } else {
-    // direct component options / constructor
+    // direct component options / constructor 直接组件选项/构造函数
     vnode = createComponent(tag, data, context, children)
   }
   if (Array.isArray(vnode)) {
@@ -137,6 +148,17 @@ export function _createElement (
 // normalization is needed - if any child is an Array, we flatten the whole
 // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
 // because functional components already normalize their own children.
+//模板编译器尝试通过
+//在编译时静态分析模板。
+//
+//对于纯HTML标记，可以完全跳过规范化，因为
+//生成的渲染函数保证返回array<vnode>。有
+//需要额外规范化的两种情况：
+//1。当子组件包含组件时-因为功能组件
+//可以返回数组而不是单个根。在这种情况下，只是一个简单的
+//需要规范化-如果有任何子级是数组，则将整个
+//处理array.prototype.concat。保证只有1层深
+//因为函数组件已经规范化了它们自己的子级。
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
@@ -150,6 +172,10 @@ export function simpleNormalizeChildren (children: any) {
 // e.g. <template>, <slot>, v-for, or when the children is provided by user
 // with hand-written render functions / JSX. In such cases a full normalization
 // is needed to cater to all possible types of children values.
+//2。当子级包含始终生成嵌套数组的构造时，
+//例如<template>、<slot>、v-for或当用户提供子级时
+//使用手写的呈现函数/jsx。在这种情况下，完全正常化
+//需要满足所有可能的子值类型。
 export function normalizeChildren (children: any): ?Array<VNode> {
   return isPrimitive(children)
     ? [createTextVNode(children)]
@@ -176,7 +202,7 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
     if (Array.isArray(c)) {
       if (c.length > 0) {
         c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`)
-        // merge adjacent text nodes
+        // merge adjacent text nodes 合并相邻的文本节点
         if (isTextNode(c[0]) && isTextNode(last)) {
           res[lastIndex] = createTextVNode(last.text + (c[0]: any).text)
           c.shift()
@@ -188,17 +214,20 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
         // merge adjacent text nodes
         // this is necessary for SSR hydration because text nodes are
         // essentially merged when rendered to HTML strings
+        //转到相邻的文本节点
+        //这对于SSR水合是必需的，因为文本节点
+        //呈现为HTML字符串时基本合并
         res[lastIndex] = createTextVNode(last.text + c)
       } else if (c !== '') {
-        // convert primitive to vnode
+        // convert primitive to vnode 将基元转换为Vnode
         res.push(createTextVNode(c))
       }
     } else {
       if (isTextNode(c) && isTextNode(last)) {
-        // merge adjacent text nodes
+        // merge adjacent text nodes 合并相邻的文本节点
         res[lastIndex] = createTextVNode(last.text + c.text)
       } else {
-        // default key for nested array children (likely generated by v-for)
+        // default key for nested array children (likely generated by v-for) 嵌套数组子级的默认键（可能由v-for生成）
         if (isTrue(children._isVList) &&
           isDef(c.tag) &&
           isUndef(c.key) &&
@@ -228,7 +257,7 @@ if (typeof tag === 'string') {
   let Ctor
   ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
   if (config.isReservedTag(tag)) {
-    // platform built-in elements
+    // platform built-in elements 平台内置元素
     vnode = new VNode(
       config.parsePlatformTagName(tag), data, children,
       undefined, undefined, context
@@ -240,13 +269,16 @@ if (typeof tag === 'string') {
     // unknown or unlisted namespaced elements
     // check at runtime because it may get assigned a namespace when its
     // parent normalizes children
+    //未知或未列出的命名空间元素
+    //在运行时检查，因为它可能在
+    //父级规范化子级
     vnode = new VNode(
       tag, data, children,
       undefined, undefined, context
     )
   }
 } else {
-  // direct component options / constructor
+  // direct component options / constructor 直接组件选项/构造函数
   vnode = createComponent(tag, data, context, children)
 }
 ```

@@ -1,6 +1,7 @@
 # render
 
 Vue 的 `_render` 方法是实例的一个私有方法，它用来把实例渲染成一个虚拟 Node。它的定义在 `src/core/instance/render.js` 文件中：
+> vue/src/core/instance/render.js
 
 ```js
 Vue.prototype._render = function (): VNode {

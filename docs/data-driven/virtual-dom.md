@@ -16,26 +16,26 @@ export default class VNode {
   text: string | void;
   elm: Node | void;
   ns: string | void;
-  context: Component | void; // rendered in this component's scope
+  context: Component | void; // rendered in this component's scope在此组件的范围内呈现
   key: string | number | void;
   componentOptions: VNodeComponentOptions | void;
-  componentInstance: Component | void; // component instance
-  parent: VNode | void; // component placeholder node
+  componentInstance: Component | void; // component instance组件实例
+  parent: VNode | void; // component placeholder node组件占位符节点
 
-  // strictly internal
-  raw: boolean; // contains raw HTML? (server only)
-  isStatic: boolean; // hoisted static node
-  isRootInsert: boolean; // necessary for enter transition check
-  isComment: boolean; // empty comment placeholder?
-  isCloned: boolean; // is a cloned node?
-  isOnce: boolean; // is a v-once node?
-  asyncFactory: Function | void; // async component factory function
+  // strictly internal严格内部
+  raw: boolean; // contains raw HTML? (server only)包含原始HTML？（仅服务器）
+  isStatic: boolean; // hoisted static node吊装静节点
+  isRootInsert: boolean; // necessary for enter transition check输入转换检查所必需的
+  isComment: boolean; // empty comment placeholder?注释占位符为空？
+  isCloned: boolean; // is a cloned node?是克隆的节点吗？
+  isOnce: boolean; // is a v-once node?有一个节点吗？
+  asyncFactory: Function | void; // async component factory function异步组件工厂函数
   asyncMeta: Object | void;
   isAsyncPlaceholder: boolean;
   ssrContext: Object | void;
-  fnContext: Component | void; // real context vm for functional nodes
-  fnOptions: ?ComponentOptions; // for SSR caching
-  fnScopeId: ?string; // functional scope id support
+  fnContext: Component | void; // real context vm for functional nodes功能节点的实上下文虚拟机
+  fnOptions: ?ComponentOptions; // for SSR caching用于SSR缓存
+  fnScopeId: ?string; // functional scope id support功能范围ID支持
 
   constructor (
     tag?: string,
@@ -72,7 +72,7 @@ export default class VNode {
     this.isAsyncPlaceholder = false
   }
 
-  // DEPRECATED: alias for componentInstance for backwards compat.
+  // DEPRECATED: alias for componentInstance for backwards compat.向后兼容的componentInstance的别名。
   /* istanbul ignore next */
   get child (): Component | void {
     return this.componentInstance
