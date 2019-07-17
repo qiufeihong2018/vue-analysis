@@ -19,6 +19,9 @@ if (typeof tag === 'string') {
     // unknown or unlisted namespaced elements
     // check at runtime because it may get assigned a namespace when its
     // parent normalizes children
+    //未知或未列出的命名空间元素
+    //在运行时检查，因为它可能在
+    //父级规范化子级
     vnode = new VNode(
       tag, data, children,
       undefined, undefined, context
@@ -26,6 +29,7 @@ if (typeof tag === 'string') {
   }
 } else {
   // direct component options / constructor
+  // /直接组件选项/构造函数
   vnode = createComponent(tag, data, context, children)
 }
 ```
@@ -47,12 +51,15 @@ export function createComponent (
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
+  //plain options对象：将其转换为构造函数
   if (isObject(Ctor)) {
     Ctor = baseCtor.extend(Ctor)
   }
 
   // if at this stage it's not a constructor or an async component factory,
   // reject.
+  //如果在此阶段它不是构造函数或异步组件工厂，
+  //拒绝。
   if (typeof Ctor !== 'function') {
     if (process.env.NODE_ENV !== 'production') {
       warn(`Invalid Component definition: ${String(Ctor)}`, context)
@@ -69,6 +76,9 @@ export function createComponent (
       // return a placeholder node for async component, which is rendered
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
+      //返回异步组件的占位符节点，呈现
+      // 作为注释节点，但保留该节点的所有原始信息。
+      //该信息将用于异步服务器呈现和水合。
       return createAsyncPlaceholder(
         asyncFactory,
         data,
@@ -83,14 +93,18 @@ export function createComponent (
 
   // resolve constructor options in case global mixins are applied after
   // component constructor creation
+  //在应用全局混合后解析构造函数选项
+  //组件构造函数创建
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events
+  //将组件v-model数据转换为属性和事件
   if (isDef(data.model)) {
     transformModel(Ctor.options, data)
   }
 
   // extract props
+  //提取props
   const propsData = extractPropsFromVNodeData(data, Ctor, tag)
 
   // functional component
@@ -99,10 +113,14 @@ export function createComponent (
   }
 
   // extract listeners, since these needs to be treated as
-  // child component listeners instead of DOM listeners
+  // child component listeners instead of DOM listeners\
+  //提取侦听器，因为需要将这些侦听器视为
+  //子组件侦听器而不是DOM侦听器
   const listeners = data.on
   // replace with listeners with .native modifier
   // so it gets processed during parent component patch.
+  //用.native修饰符替换为侦听器
+  //所以它在父组件修补期间得到处理。
   data.on = data.nativeOn
 
   if (isTrue(Ctor.options.abstract)) {
@@ -110,6 +128,9 @@ export function createComponent (
     // other than props & listeners & slot
 
     // work around flow
+    //抽象组件不保留任何内容
+    //除了props,监听器和插槽
+    //绕流工作
     const slot = data.slot
     data = {}
     if (slot) {
@@ -118,6 +139,7 @@ export function createComponent (
   }
 
   // install component management hooks onto the placeholder node
+  //在占位符节点上安装组件管理挂钩
   installComponentHooks(data)
 
   // return a placeholder vnode
@@ -131,6 +153,7 @@ export function createComponent (
 
   // Weex specific: invoke recycle-list optimized @render function for
   // extracting cell-slot template.
+  // 提取单元槽模板。
   // https://github.com/Hanks10100/weex-native-directive/tree/master/component
   /* istanbul ignore if */
   if (__WEEX__ && isRecyclableComponent(vnode)) {
@@ -151,6 +174,7 @@ export function createComponent (
 const baseCtor = context.$options._base
 
 // plain options object: turn it into a constructor
+//plain options对象：将其转换为构造函数
 if (isObject(Ctor)) {
   Ctor = baseCtor.extend(Ctor)
 }
@@ -173,6 +197,8 @@ export default {
 ```js
 // this is used to identify the "base" constructor to extend all plain-object
 // components with in Weex's multi-instance scenarios.
+//用于标识“base”构造函数以扩展所有纯对象
+//包含在Weex的多实例方案中的组件。
 Vue.options._base = Vue
 ```
 细心的同学会发现，这里定义的是 `Vue.options`，而我们的 `createComponent` 取的是 `context.$options`，实际上在 `src/core/instance/init.js` 里 Vue 原型上的 `_init` 函数中有这么一段逻辑：
@@ -222,6 +248,9 @@ Vue.extend = function (extendOptions: Object): Function {
   // For props and computed properties, we define the proxy getters on
   // the Vue instances at extension time, on the extended prototype. This
   // avoids Object.defineProperty calls for each instance created.
+  //对于props和computed属性，我们在
+  //扩展时扩展原型上的Vue实例。这个
+  //避免为每个创建的实例调用object.defineproperty。
   if (Sub.options.props) {
     initProps(Sub)
   }
@@ -230,16 +259,20 @@ Vue.extend = function (extendOptions: Object): Function {
   }
 
   // allow further extension/mixin/plugin usage
+  //允许进一步扩展/混音/插件使用
   Sub.extend = Super.extend
   Sub.mixin = Super.mixin
   Sub.use = Super.use
 
   // create asset registers, so extended classes
   // can have their private assets too.
+  //创建资产寄存器，因此扩展类
+  //也可以拥有他们的私人资产。
   ASSET_TYPES.forEach(function (type) {
     Sub[type] = Super[type]
   })
   // enable recursive self-lookup
+  //启用递归自查找
   if (name) {
     Sub.options.components[name] = Sub
   }
@@ -247,11 +280,15 @@ Vue.extend = function (extendOptions: Object): Function {
   // keep a reference to the super options at extension time.
   // later at instantiation we can check if Super's options have
   // been updated.
+  //在扩展时保留对超级选项的引用。
+  //稍后在实例化时，我们可以检查super的选项是否
+  //已更新。
   Sub.superOptions = Super.options
   Sub.extendOptions = extendOptions
   Sub.sealedOptions = extend({}, Sub.options)
 
   // cache constructor
+  //缓存生成器
   cachedCtors[SuperId] = Sub
   return Sub
 }
@@ -321,6 +358,10 @@ const componentVNodeHooks = {
         // change, so directly walking the tree here may call activated hooks
         // on incorrect children. Instead we push them into a queue which will
         // be processed after the whole patch process ended.
+        //在更新期间，保持活动的组件的子组件可能
+        //更改，因此直接在此处浏览树可能会调用激活的挂钩
+        //在不正确的子级上。相反，我们把它们排成一个队列，
+        //在整个补丁过程结束后进行处理。
         queueActivatedComponent(componentInstance)
       } else {
         activateChildComponent(componentInstance, true /* direct */)
@@ -357,6 +398,7 @@ function installComponentHooks (data: VNodeData) {
 function mergeHook (f1: any, f2: any): Function {
   const merged = (a, b) => {
     // flow complains about extra args which is why we use any
+    //Flow抱怨额外的参数，这就是为什么我们使用
     f1(a, b)
     f2(a, b)
   }

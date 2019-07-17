@@ -108,5 +108,9 @@ enter image description here
 
 希望同学们在学习源码的同时，不仅仅知其然，也能知其所以然。
 
+## todo
+[实现一个小型的Vue.js](https://javascript.ctolib.com/dora-zc-miniature-vue.html#articleHeader10)
+
+[实现一个小型vue，探索原理](https://www.jianshu.com/p/8991f20e7746)
 ## 参考文献
 [来聊聊源码学习](https://juejin.im/post/5b18d2d7f265da6e410e0e20#heading-3)
