@@ -26,6 +26,8 @@ function createElm (
 
 我们删掉多余的代码，只保留关键的逻辑，这里会判断 `createComponent(vnode, insertedVnodeQueue, parentElm, refElm)` 的返回值，如果为 `true` 则直接结束，那么接下来看一下 `createComponent` 方法的实现：
 
+Reactivated：再激活的
+hydrating：保湿的，混合物
 ```js
 function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
   let i = vnode.data
@@ -38,6 +40,10 @@ function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     // it should've created a child instance and mounted it. the child
     // component also has set the placeholder vnode's elm.
     // in that case we can just return the element and be done.
+    //调用init钩子后，如果vnode是子组件
+    //它应该创建一个子实例并挂载它。这个子
+    //组件还设置了占位符vnode的元素。
+    //在这种情况下，我们只需要返回元素就可以了。
     if (isDef(vnode.componentInstance)) {
       initComponent(vnode, insertedVnodeQueue)
       insert(parentElm, vnode.elm, refElm)
@@ -74,7 +80,8 @@ init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
     vnode.data.keepAlive
   ) {
     // kept-alive components, treat as a patch
-    const mountedNode: any = vnode // work around flow
+    // kept-alive组件，视为一个补丁
+    const mountedNode: any = vnode // work around flow工作流程
     componentVNodeHooks.prepatch(mountedNode, mountedNode)
   } else {
     const child = vnode.componentInstance = createComponentInstanceForVnode(
@@ -91,15 +98,15 @@ init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
 
 ```js
 export function createComponentInstanceForVnode (
-  vnode: any, // we know it's MountedComponentVNode but flow doesn't
-  parent: any, // activeInstance in lifecycle state
+  vnode: any, // we know it's MountedComponentVNode but flow doesn't我们知道它是MountedComponentVNode，但flow不是
+  parent: any, // activeInstance in lifecycle state activeInstance in lifecycle state
 ): Component {
   const options: InternalComponentOptions = {
     _isComponent: true,
     _parentVnode: vnode,
     parent
   }
-  // check inline-template render functions
+  // check inline-template render functions检查内联模板渲染函数
   const inlineTemplate = vnode.data.inlineTemplate
   if (isDef(inlineTemplate)) {
     options.render = inlineTemplate.render
@@ -121,6 +128,9 @@ Vue.prototype._init = function (options?: Object) {
     // optimize internal component instantiation
     // since dynamic options merging is pretty slow, and none of the
     // internal component options needs special treatment.
+    //优化内部组件实例化
+    //因为动态选项合并非常慢，而且没有
+    //内部组件选项需要特殊处理。
     initInternalComponent(vm, options)
   } else {
     vm.$options = mergeOptions(
@@ -177,6 +187,8 @@ Vue.prototype._render = function (): VNode {
   
   // set parent vnode. this allows render functions to have access
   // to the data on the placeholder node.
+  //设置父节点vnode。这允许呈现函数具有访问权限
+//指向占位符节点上的数据。
   vm.$vnode = _parentVnode
   // render self
   let vnode
@@ -206,6 +218,8 @@ Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
   vm._vnode = vnode
   // Vue.prototype.__patch__ is injected in entry points
   // based on the rendering backend used.
+  // Vue.prototype。在入口点注入……patch__
+//基于所使用的呈现后端。
   if (!prevVnode) {
     // initial render
     vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
@@ -227,6 +241,8 @@ Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
   }
   // updated hook is called by the scheduler to ensure that children are
   // updated in a parent's updated hook.
+  //更新的钩子由调度程序调用，以确保子钩子是
+//在父类更新的钩子中更新。
 }
 ```
 `_update` 过程中有几个关键的代码，首先 `vm._vnode = vnode` 的逻辑，这个 `vnode` 是通过 `vm._render()` 返回的组件渲染 VNode，`vm._vnode` 和 `vm.$vnode` 的关系就是一种父子关系，用代码表达就是 `vm._vnode.parent === vm.$vnode`。还有一段比较有意思的代码：
@@ -256,6 +272,7 @@ export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  //找到第一个非抽象父类
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
