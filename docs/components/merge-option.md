@@ -11,6 +11,9 @@ Vue.prototype._init = function (options?: Object) {
     // optimize internal component instantiation
     // since dynamic options merging is pretty slow, and none of the
     // internal component options needs special treatment.
+    //优化内部组件实例化
+    //因为动态选项合并非常慢，而且没有
+    //内部组件选项需要特殊处理。
     initInternalComponent(vm, options)
   } else {
     vm.$options = mergeOptions(
@@ -81,6 +84,8 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   // this is used to identify the "base" constructor to extend all plain-object
   // components with in Weex's multi-instance scenarios.
+  //这用于标识扩展所有纯对象的“基本”构造函数
+  //在Weex的多实例场景中使用组件。
   Vue.options._base = Vue
 
   extend(Vue.options.components, builtInComponents)
@@ -114,6 +119,8 @@ Vue.options.filters = {}
 /**
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
+ * 将两个option对象合并到一个新对象中。
+ * 用于实例化和继承的核心实用程序。
  */
 export function mergeOptions (
   parent: Object,
@@ -252,6 +259,9 @@ Vue.extend = function (extendOptions: Object): Function {
   // keep a reference to the super options at extension time.
   // later at instantiation we can check if Super's options have
   // been updated.
+  //在扩展时保留对超级选项的引用。
+  //稍后在实例化时，我们可以检查Super的选项是否有
+  //更新。
   Sub.superOptions = Super.options
   Sub.extendOptions = extendOptions
   Sub.sealedOptions = extend({}, Sub.options)
@@ -266,8 +276,8 @@ Vue.extend = function (extendOptions: Object): Function {
 
 ```js
 export function createComponentInstanceForVnode (
-  vnode: any, // we know it's MountedComponentVNode but flow doesn't
-  parent: any, // activeInstance in lifecycle state
+  vnode: any, // we know it's MountedComponentVNode but flow doesn't//我们知道它是MountedComponentVNode，但flow不是
+  parent: any, // activeInstance in lifecycle state// activeInstance处于生命周期状态
 ): Component {
   const options: InternalComponentOptions = {
     _isComponent: true,
@@ -285,6 +295,7 @@ export function createComponentInstanceForVnode (
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.
+  //这样做是因为它比动态枚举快。
   const parentVnode = options._parentVnode
   opts.parent = options.parent
   opts._parentVnode = parentVnode
