@@ -11,6 +11,7 @@
 ```js
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
+  // 调用生命周期挂钩时禁用DEP集合
   pushTarget()
   const handlers = vm.$options[hook]
   if (handlers) {
@@ -100,6 +101,9 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  //我们在观察者的构造函数内将其设置为vm._watcher
+//因为观察程序的初始补丁可能调用$forceupdate（例如，inside child
+//component的mounted hook），它依赖于vm。_watcher已经被定义
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted) {
@@ -111,6 +115,8 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
+  //手动挂载实例，调用挂载在自身
+//调用mounted在其插入的挂钩中呈现创建的子组件
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')
@@ -126,6 +132,8 @@ export function mountComponent (
 function invokeInsertHook (vnode, queue, initial) {
   // delay insert hooks for component root nodes, invoke them after the
   // element is really inserted
+  //延迟组件根节点的插入挂钩，并在
+//元素确实已插入
   if (isTrue(initial) && isDef(vnode.parent)) {
     vnode.parent.data.pendingInsert = queue
   } else {
