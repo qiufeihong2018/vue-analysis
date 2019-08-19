@@ -32,6 +32,7 @@ export function createComponent (
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
+  //普通选项对象：将其转换为构造函数
   if (isObject(Ctor)) {
     Ctor = baseCtor.extend(Ctor)
   }
@@ -47,6 +48,9 @@ export function createComponent (
       // return a placeholder node for async component, which is rendered
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
+      //返回异步组件的占位符节点，该节点将被呈现
+       //作为注释节点，但保留节点的所有原始信息。
+       //该信息将用于异步服务器渲染和水合。
       return createAsyncPlaceholder(
         asyncFactory,
         data,
@@ -203,6 +207,9 @@ Vue.component('async-example', AsyncComp)
 /**
  * Ensure a function is called only once.
  */
+/**
+  *确保只调用一次函数。
+ */
 export function once (fn: Function): Function {
   let called = false
   return function () {
