@@ -47,9 +47,12 @@ function initProps (vm: Component, propsOptions: Object) {
   const props = vm._props = {}
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
+  //缓存prop键，以便将来的道具更新可以使用Array进行迭代
+   //而不是动态对象键枚举。
   const keys = vm.$options._propKeys = []
   const isRoot = !vm.$parent
   // root instance props should be converted
+  //应该转换根实例道具
   if (!isRoot) {
     toggleObserving(false)
   }
@@ -63,6 +66,7 @@ function initProps (vm: Component, propsOptions: Object) {
           config.isReservedAttr(hyphenatedKey)) {
         warn(
           `"${hyphenatedKey}" is a reserved attribute and cannot be used as component prop.`,
+          // 是保留属性，不能用作组件prop
           vm
         )
       }
@@ -73,6 +77,7 @@ function initProps (vm: Component, propsOptions: Object) {
             `overwritten whenever the parent component re-renders. ` +
             `Instead, use a data or computed property based on the prop's ` +
             `value. Prop being mutated: "${key}"`,
+            // 避免直接改变prop，因为该值为只要父组件重新渲染就会覆盖。 相反，使用基于prop的数据或计算属性值，支持变异：
             vm
           )
         }
@@ -83,6 +88,9 @@ function initProps (vm: Component, propsOptions: Object) {
     // static props are already proxied on the component's prototype
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
+    //静态道具已经代理了组件的原型
+     //在Vue.extend（）期间。 我们只需要代理定义的道具
+     //在这里实例化
     if (!(key in vm)) {
       proxy(vm, `_props`, key)
     }
@@ -105,10 +113,13 @@ function initData (vm: Component) {
     process.env.NODE_ENV !== 'production' && warn(
       'data functions should return an object:\n' +
       'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
+      // '数据函数应该返回一个对象：\ n'+
+//       'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function'，
       vm
     )
   }
   // proxy data on instance
+  // 实例上的代理数据
   const keys = Object.keys(data)
   const props = vm.$options.props
   const methods = vm.$options.methods
@@ -119,6 +130,7 @@ function initData (vm: Component) {
       if (methods && hasOwn(methods, key)) {
         warn(
           `Method "${key}" has already been defined as a data property.`,
+          // `方法“$ {key}”已被定义为数据属性。，
           vm
         )
       }
@@ -127,6 +139,8 @@ function initData (vm: Component) {
       process.env.NODE_ENV !== 'production' && warn(
         `The data property "${key}" is already declared as a prop. ` +
         `Use prop default value instead.`,
+        // `数据属性“$ {key}”已经被声明为prop。 `+
+//          `使用prop默认值代替。，
         vm
       )
     } else if (!isReserved(key)) {
@@ -134,6 +148,7 @@ function initData (vm: Component) {
     }
   }
   // observe data
+  // 观察数据
   observe(data, true /* asRootData */)
 }
 ```
@@ -192,6 +207,11 @@ export function proxy (target: Object, sourceKey: string, key: string) {
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
  */
+/**
+  *尝试为值创建观察者实例，
+  *如果成功观察，则返回新观察者，
+  *或现有观察者，如果值已经有一个。
+ */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
   if (!isObject(value) || value instanceof VNode) {
     return
@@ -228,11 +248,17 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
  * object's property keys into getter/setters that
  * collect dependencies and dispatch updates.
  */
+/**
+  * Observer类附加到每个观察到的
+  *对象。 一旦附加，观察者就会转换目标
+  *对象的属性键进入getter / setter
+  *收集依赖关系并发送更新。
+ */
 export class Observer {
   value: any;
   dep: Dep;
   vmCount: number; // number of vms that has this object as root $data
-
+//将此对象作为root $ data的vms数
   constructor (value: any) {
     this.value = value
     this.dep = new Dep()
@@ -254,6 +280,11 @@ export class Observer {
    * getter/setters. This method should only be called when
    * value type is Object.
    */
+  /**
+    *穿过每个属性并将其转换为
+    * getter / setters。 只应在调用时调用此方法
+    *值类型是Object。
+   */
   walk (obj: Object) {
     const keys = Object.keys(obj)
     for (let i = 0; i < keys.length; i++) {
@@ -264,6 +295,9 @@ export class Observer {
   /**
    * Observe a list of Array items.
    */
+  /**
+    *观察数组项目列表。
+   */
   observeArray (items: Array<any>) {
     for (let i = 0, l = items.length; i < l; i++) {
       observe(items[i])
@@ -278,6 +312,9 @@ export class Observer {
 /**
  * Define a property.
  */
+/**
+  *定义一个属性。
+ */
 export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
   Object.defineProperty(obj, key, {
     value: val,
@@ -300,6 +337,9 @@ export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
 /**
  * Define a reactive property on an Object.
  */
+/**
+  *在Object上定义反应属性。
+ */
 export function defineReactive (
   obj: Object,
   key: string,
