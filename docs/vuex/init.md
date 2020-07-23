@@ -1,6 +1,6 @@
 # Vuex 初始化
 
-这一节我们主要来分析 Vuex 的初始化过程，它包括安装、Store 实例化过程 2 个方面。
+这一节我们主要来分析 `Vuex` 的初始化过程，它包括安装、`Store` 实例化过程 `2` 个方面。
 
 ## 安装
 
@@ -19,7 +19,7 @@ export default {
 }
 ```
 
-和 Vue-Router 一样，Vuex 也同样存在一个静态的 `install` 方法，它的定义在 `src/store.js` 中：
+和 `Vue-Router` 一样，`Vuex` 也同样存在一个静态的 `install` 方法，它的定义在 `src/store.js` 中：
 
 ```js
 export function install (_Vue) {
@@ -45,8 +45,8 @@ export default function (Vue) {
   if (version >= 2) {
     Vue.mixin({ beforeCreate: vuexInit })
   } else {
-    // override init and inject vuex init procedure
-    // for 1.x backwards compatibility.
+    // override init and inject vuex init procedure重写init并注入vuex init过程
+    // for 1.x backwards compatibility.为1.x向后兼容性。
     const _init = Vue.prototype._init
     Vue.prototype._init = function (options = {}) {
       options.init = options.init
@@ -57,12 +57,12 @@ export default function (Vue) {
   }
 
   /**
-   * Vuex init hook, injected into each instances init hooks list.
+   * Vuex init hook, injected into each instances init hooks list.init钩子，注入到每个实例init钩子列表中。
    */
 
   function vuexInit () {
     const options = this.$options
-    // store injection
+    // store injection store注入
     if (options.store) {
       this.$store = typeof options.store === 'function'
         ? options.store()
@@ -74,7 +74,7 @@ export default function (Vue) {
 }
 ```
 
-`applyMixin` 就是这个 `export default function`，它还兼容了 Vue 1.0 的版本，这里我们只关注 Vue 2.0 以上版本的逻辑，它其实就全局混入了一个 `beforeCreate` 钩子函数，它的实现非常简单，就是把 `options.store` 保存在所有组件的 `this.$store` 中，这个 `options.store` 就是我们在实例化 `Store` 对象的实例，稍后我们会介绍，这也是为什么我们在组件中可以通过 `this.$store` 访问到这个实例。
+`applyMixin` 就是这个 `export default function`，它还兼容了 `Vue 1.0` 的版本，这里我们只关注 `Vue 2.0` 以上版本的逻辑，它其实就全局混入了一个 `beforeCreate` 钩子函数，它的实现非常简单，就是把 `options.store` 保存在所有组件的 `this.$store` 中，这个 `options.store` 就是我们在实例化 `Store` 对象的实例，稍后我们会介绍，这也是为什么我们在组件中可以通过 `this.$store` 访问到这个实例。
 
 ## Store 实例化
 
@@ -92,14 +92,16 @@ export default new Vuex.Store({
 })
 ```
 
-`Store` 对象的构造函数接收一个对象参数，它包含 `actions`、`getters`、`state`、`mutations`、`modules` 等 Vuex 的核心概念，它的定义在 `src/store.js` 中：
+`Store` 对象的构造函数接收一个对象参数，它包含 `actions`、`getters`、`state`、`mutations`、`modules` 等 `Vuex` 的核心概念，它的定义在 `src/store.js` 中：
 
 ```js
 export class Store {
   constructor (options = {}) {
-    // Auto install if it is not done yet and `window` has `Vue`.
+    // Auto install if it is not done yet and `window` has `Vue`.自动安装，如果它还没有完成并且'window'有' Vue '。
     // To allow users to avoid auto-installation in some cases,
-    // this code should be placed here. See #731
+    // this code should be placed here. See #731为了让用户在某些情况下避免自动安装，
+//此代码应放在此处。
+// 看到# 731
     if (!Vue && typeof window !== 'undefined' && window.Vue) {
       install(window.Vue)
     }
@@ -115,7 +117,7 @@ export class Store {
       strict = false
     } = options
 
-    // store internal state
+    // store internal state store内部状态
     this._committing = false
     this._actions = Object.create(null)
     this._actionSubscribers = []
@@ -126,7 +128,7 @@ export class Store {
     this._subscribers = []
     this._watcherVM = new Vue()
 
-    // bind commit and dispatch to self
+    // bind commit and dispatch to self绑定commit和dispatch自己
     const store = this
     const { dispatch, commit } = this
     this.dispatch = function boundDispatch (type, payload) {
@@ -136,21 +138,21 @@ export class Store {
       return commit.call(store, type, payload, options)
     }
 
-    // strict mode
+    // strict mode严格模式
     this.strict = strict
 
     const state = this._modules.root.state
 
-    // init root module.
-    // this also recursively registers all sub-modules
-    // and collects all module getters inside this._wrappedGetters
+    // init root module.初始化跟模块
+    // this also recursively registers all sub-modules这也递归注册所有子模块
+    // and collects all module getters inside this._wrappedGetters并在this._wrappedGetters中收集所有模块getter
     installModule(this, state, [], this._modules.root)
 
-    // initialize the store vm, which is responsible for the reactivity
-    // (also registers _wrappedGetters as computed properties)
+    // initialize the store vm, which is responsible for the reactivity初始化负责响应的存储vm
+    // (also registers _wrappedGetters as computed properties)(也将_wrappedGetters注册为计算属性)
     resetStoreVM(this, state)
 
-    // apply plugins
+    // apply plugins应用插件
     plugins.forEach(plugin => plugin(this))
 
     if (Vue.config.devtools) {
@@ -160,11 +162,11 @@ export class Store {
 }  
 ```
 
-我们把 `Store` 的实例化过程拆成 3 个部分，分别是初始化模块，安装模块和初始化 `store._vm`，接下来我们来分析这 3 部分的实现。
+我们把 `Store` 的实例化过程拆成 `3` 个部分，分别是初始化模块，安装模块和初始化 `store._vm`，接下来我们来分析这 `3` 部分的实现。
 
 ### 初始化模块
 
-在分析模块初始化之前，我们先来了解一下模块对于 Vuex 的意义：由于使用单一状态树，应用的所有状态会集中到一个比较大的对象，当应用变得非常复杂时，`store` 对象就有可能变得相当臃肿。为了解决以上问题，Vuex 允许我们将 `store` 分割成模块（module）。每个模块拥有自己的 `state`、`mutation`、`action`、`getter`，甚至是嵌套子模块——从上至下进行同样方式的分割：
+在分析模块初始化之前，我们先来了解一下模块对于 `Vuex` 的意义：由于使用单一状态树，应用的所有状态会集中到一个比较大的对象，当应用变得非常复杂时，`store` 对象就有可能变得相当臃肿。为了解决以上问题，`Vuex` 允许我们将 `store` 分割成模块（`module`）。每个模块拥有自己的 `state`、`mutation`、`action`、`getter`，甚至是嵌套子模块——从上至下进行同样方式的分割：
 
 ```js
 const moduleA = {
@@ -192,7 +194,7 @@ store.state.a // -> moduleA 的状态
 store.state.b // -> moduleB 的状态
 ```
 
-所以从数据结构上来看，模块的设计就是一个树型结构，`store` 本身可以理解为一个 `root module`，它下面的 `modules` 就是子模块，Vuex 需要完成这颗树的构建，构建过程的入口就是：
+所以从数据结构上来看，模块的设计就是一个树型结构，`store` 本身可以理解为一个 `root module`，它下面的 `modules` 就是子模块，`Vuex` 需要完成这颗树的构建，构建过程的入口就是：
 
 ```js
 this._modules = new ModuleCollection(options)
@@ -203,7 +205,7 @@ this._modules = new ModuleCollection(options)
 ```js
 export default class ModuleCollection {
   constructor (rawRootModule) {
-    // register root module (Vuex.Store options)
+    // register root module (Vuex.Store options)注册根模块
     this.register([], rawRootModule, false)
   }
 
@@ -238,7 +240,7 @@ export default class ModuleCollection {
       parent.addChild(path[path.length - 1], newModule)
     }
 
-    // register nested modules
+    // register nested modules注册嵌套模块
     if (rawModule.modules) {
       forEachValue(rawModule.modules, (rawChildModule, key) => {
         this.register(path.concat(key), rawChildModule, runtime)
@@ -257,7 +259,7 @@ export default class ModuleCollection {
 ```
 
 `ModuleCollection` 实例化的过程就是执行了 `register` 方法，
-`register` 接收 3 个参数，其中 `path` 表示路径，因为我们整体目标是要构建一颗模块树，`path` 是在构建树的过程中维护的路径；`rawModule` 表示定义模块的原始配置；`runtime` 表示是否是一个运行时创建的模块。
+`register` 接收 `3` 个参数，其中 `path` 表示路径，因为我们整体目标是要构建一颗模块树，`path` 是在构建树的过程中维护的路径；`rawModule` 表示定义模块的原始配置；`runtime` 表示是否是一个运行时创建的模块。
 
 `register` 方法首先通过 `const newModule = new Module(rawModule, runtime)` 创建了一个 `Module` 的实例，`Module` 是用来描述单个模块的类，它的定义在 `src/module/module.js` 中：
 
@@ -265,13 +267,13 @@ export default class ModuleCollection {
 export default class Module {
   constructor (rawModule, runtime) {
     this.runtime = runtime
-    // Store some children item
+    // Store some children item存储一些子项
     this._children = Object.create(null)
-    // Store the origin module object which passed by programmer
+    // Store the origin module object which passed by programmer存储由程序员传递的原始模块对象
     this._rawModule = rawModule
     const rawState = rawModule.state
 
-    // Store the origin module's state
+    // Store the origin module's state存储原始模块的状态
     this.state = (typeof rawState === 'function' ? rawState() : rawState) || {}
   }
 
@@ -330,7 +332,7 @@ export default class Module {
 
 来看一下 `Module` 的构造函数，对于每个模块而言，`this._rawModule` 表示模块的配置，`this._children` 表示它的所有子模块，`this.state` 表示这个模块定义的 `state`。
 
-回到 `register`，那么在实例化一个 `Module` 后，判断当前的 `path` 的长度如果为 0，则说明它是一个根模块，所以把 `newModule` 赋值给了 `this.root`，否则就需要建立父子关系了：
+回到 `register`，那么在实例化一个 `Module` 后，判断当前的 `path` 的长度如果为 `0`，则说明它是一个根模块，所以把 `newModule` 赋值给了 `this.root`，否则就需要建立父子关系了：
 
 ```js
 const parent = this.get(path.slice(0, -1))
@@ -383,12 +385,12 @@ function installModule (store, rootState, path, module, hot) {
   const isRoot = !path.length
   const namespace = store._modules.getNamespace(path)
 
-  // register in namespace map
+  // register in namespace map在名称空间映射中注册
   if (module.namespaced) {
     store._modulesNamespaceMap[namespace] = module
   }
 
-  // set state
+  // set state设置状态
   if (!isRoot && !hot) {
     const parentState = getNestedState(rootState, path.slice(0, -1))
     const moduleName = path[path.length - 1]
@@ -421,7 +423,7 @@ function installModule (store, rootState, path, module, hot) {
 }
 ```
 
-`installModule` 方法支持 5 个参数，`store` 表示 `root store`；`state` 表示 `root state`；`path` 表示模块的访问路径；`module` 表示当前的模块，`hot` 表示是否是热更新。
+`installModule` 方法支持 `5` 个参数，`store` 表示 `root store`；`state` 表示 `root state`；`path` 表示模块的访问路径；`module` 表示当前的模块，`hot` 表示是否是热更新。
 
 接下来看函数逻辑，这里涉及到了命名空间的概念，默认情况下，模块内部的 `action`、`mutation` 和 `getter` 是注册在全局命名空间的——这样使得多个模块能够对同一 `mutation` 或 `action` 作出响应。如果我们希望模块具有更高的封装度和复用性，可以通过添加 `namespaced: true` 的方式使其成为带命名空间的模块。当模块被注册后，它的所有 `getter`、`action` 及 `mutation` 都会自动根据模块注册的路径调整命名。例如：
 
@@ -486,7 +488,7 @@ getNamespace (path) {
 }
 ```
 
-从 `root module` 开始，通过 `reduce` 方法一层层找子模块，如果发现该模块配置了 `namespaced` 为 true，则把该模块的 `key` 拼到 `namesapce` 中，最终返回完整的 `namespace` 字符串。
+从 `root module` 开始，通过 `reduce` 方法一层层找子模块，如果发现该模块配置了 `namespaced` 为 `true`，则把该模块的 `key` 拼到 `namesapce` 中，最终返回完整的 `namespace` 字符串。
 
 回到 `installModule` 方法，接下来把 `namespace` 对应的模块保存下来，为了方便以后能根据 `namespace` 查找模块：
 
@@ -544,8 +546,8 @@ function makeLocalContext (store, namespace, path) {
     }
   }
 
-  // getters and state object must be gotten lazily
-  // because they will be changed by vm update
+  // getters and state object must be gotten lazilygetter和状态对象必须延迟获取
+  // because they will be changed by vm update因为它们会被vm更新更改
   Object.defineProperties(local, {
     getters: {
       get: noNamespace
@@ -561,7 +563,7 @@ function makeLocalContext (store, namespace, path) {
 }
 ```
 
-`makeLocalContext` 支持 3 个参数相关，`store` 表示 `root store`；`namespace` 表示模块的命名空间，`path` 表示模块的 `path`。
+`makeLocalContext` 支持 `3` 个参数相关，`store` 表示 `root store`；`namespace` 表示模块的命名空间，`path` 表示模块的 `path`。
 
 该方法定义了 `local` 对象，对于 `dispatch` 和 `commit` 方法，如果没有 `namespace`，它们就直接指向了 `root store` 的 `dispatch` 和 `commit` 方法，否则会创建方法，把 `type` 自动拼接上 `namespace`，然后执行 `store` 上对应的方法。
 
@@ -573,15 +575,17 @@ function makeLocalGetters (store, namespace) {
 
   const splitPos = namespace.length
   Object.keys(store.getters).forEach(type => {
-    // skip if the target getter is not match this namespace
+    // skip if the target getter is not match this namespace如果目标getter不匹配此名称空间，则跳过
     if (type.slice(0, splitPos) !== namespace) return
 
-    // extract local getter type
+    // extract local getter type提取局部getter类型
     const localType = type.slice(splitPos)
 
     // Add a port to the getters proxy.
     // Define as getter property because
-    // we do not want to evaluate the getters in this time.
+    // we do not want to evaluate the getters in this time.向getter代理添加一个端口。
+//定义为getter属性，因为
+//这次我们不想计算getter。
     Object.defineProperty(gettersProxy, localType, {
       get: () => store.getters[type],
       enumerable: true
@@ -731,12 +735,12 @@ resetStoreVM(this, state)
 function resetStoreVM (store, state, hot) {
   const oldVm = store._vm
 
-  // bind store public getters
+  // bind store public getters绑定存储公共getter
   store.getters = {}
   const wrappedGetters = store._wrappedGetters
   const computed = {}
   forEachValue(wrappedGetters, (fn, key) => {
-    // use computed to leverage its lazy-caching mechanism
+    // use computed to leverage its lazy-caching mechanism使用computed来利用其延迟缓存机制
     computed[key] = () => fn(store)
     Object.defineProperty(store.getters, key, {
       get: () => store._vm[key],
@@ -744,9 +748,9 @@ function resetStoreVM (store, state, hot) {
     })
   })
 
-  // use a Vue instance to store the state tree
-  // suppress warnings just in case the user has added
-  // some funky global mixins
+  // use a Vue instance to store the state tree用一个vue实例去存储状态树
+  // suppress warnings just in case the user has added删除警告，以防用户添加
+  // some funky global mixins一些时髦的全部混合
   const silent = Vue.config.silent
   Vue.config.silent = true
   store._vm = new Vue({
@@ -757,7 +761,7 @@ function resetStoreVM (store, state, hot) {
   })
   Vue.config.silent = silent
 
-  // enable strict mode for new vm
+  // enable strict mode for new vm为新的vm启用严格模式
   if (store.strict) {
     enableStrictMode(store)
   }
@@ -766,6 +770,8 @@ function resetStoreVM (store, state, hot) {
     if (hot) {
       // dispatch changes in all subscribed watchers
       // to force getter re-evaluation for hot reloading.
+      //在所有订阅监视程序中分派更改
+//强制getter重新评估热重新加载。
       store._withCommit(() => {
         oldVm._data.$$state = null
       })
@@ -842,7 +848,7 @@ function enableStrictMode (store) {
 }
 ```
 
-当严格模式下，`store._vm` 会添加一个 `wathcer` 来观测 `this._data.$$state` 的变化，也就是当 `store.state` 被修改的时候, `store._committing` 必须为 true，否则在开发阶段会报警告。`store._committing` 默认值是 `false`，那么它什么时候会 true 呢，`Store` 定义了 `_withCommit` 实例方法：
+当严格模式下，`store._vm` 会添加一个 `wathcer` 来观测 `this._data.$$state` 的变化，也就是当 `store.state` 被修改的时候, `store._committing` 必须为 `true`，否则在开发阶段会报警告。`store._committing` 默认值是 `false`，那么它什么时候会 `true` 呢，`Store` 定义了 `_withCommit` 实例方法：
 
 ```js
 _withCommit (fn) {
@@ -853,10 +859,10 @@ _withCommit (fn) {
 }
 ```
 
-它就是对 `fn` 包装了一个环境，确保在 `fn` 中执行任何逻辑的时候 `this._committing = true`。所以外部任何非通过 Vuex 提供的接口直接操作修改 `state` 的行为都会在开发阶段触发警告。
+它就是对 `fn` 包装了一个环境，确保在 `fn` 中执行任何逻辑的时候 `this._committing = true`。所以外部任何非通过 `Vuex` 提供的接口直接操作修改 `state` 的行为都会在开发阶段触发警告。
 
 ## 总结
 
-那么至此，Vuex 的初始化过程就分析完毕了，除了安装部分，我们重点分析了 `Store` 的实例化过程。我们要把 `store` 想象成一个数据仓库，为了更方便的管理仓库，我们把一个大的 `store` 拆成一些 `modules`，整个 `modules` 是一个树型结构。每个 `module` 又分别定义了 `state`，`getters`，`mutations`、`actions`，我们也通过递归遍历模块的方式都完成了它们的初始化。为了 `module` 具有更高的封装度和复用性，还定义了 `namespace` 的概念。最后我们还定义了一个内部的 `Vue` 实例，用来建立 `state` 到 `getters` 的联系，并且可以在严格模式下监测 `state` 的变化是不是来自外部，确保改变 `state` 的唯一途径就是显式地提交 `mutation`。
+那么至此，`Vuex` 的初始化过程就分析完毕了，除了安装部分，我们重点分析了 `Store` 的实例化过程。我们要把 `store` 想象成一个数据仓库，为了更方便的管理仓库，我们把一个大的 `store` 拆成一些 `modules`，整个 `modules` 是一个树型结构。每个 `module` 又分别定义了 `state`，`getters`，`mutations`、`actions`，我们也通过递归遍历模块的方式都完成了它们的初始化。为了 `module` 具有更高的封装度和复用性，还定义了 `namespace` 的概念。最后我们还定义了一个内部的 `Vue` 实例，用来建立 `state` 到 `getters` 的联系，并且可以在严格模式下监测 `state` 的变化是不是来自外部，确保改变 `state` 的唯一途径就是显式地提交 `mutation`。
 
-这一节我们已经建立好 `store`，接下来就是对外提供了一些 API 方便我们对这个 `store` 做数据存取的操作，下一节我们就来从源码角度来分析 `Vuex` 提供的一系列 API。
+这一节我们已经建立好 `store`，接下来就是对外提供了一些 `API` 方便我们对这个 `store` 做数据存取的操作，下一节我们就来从源码角度来分析 `Vuex` 提供的一系列 `API`。
