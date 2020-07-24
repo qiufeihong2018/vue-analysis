@@ -1,17 +1,17 @@
 # API
 
-上一节我们对 Vuex 的初始化过程有了深入的分析，在我们构造好这个 `store` 后，需要提供一些 API 对这个 `store` 做存取的操作，那么这一节我们就从源码的角度对这些 API 做分析。
+上一节我们对 `Vuex` 的初始化过程有了深入的分析，在我们构造好这个 `store` 后，需要提供一些 `API` 对这个 `store` 做存取的操作，那么这一节我们就从源码的角度对这些 API 做分析。
  
 ## 数据获取
 
-Vuex 最终存储的数据是在 `state` 上的，我们之前分析过在 `store.state` 存储的是 `root state`，那么对于模块上的 `state`，假设我们有 2 个嵌套的 `modules`，它们的 `key` 分别为 `a` 和 `b`，我们可以通过 `store.state.a.b.xxx` 的方式去获取。它的实现是在发生在 `installModule` 的时候：
+`Vuex` 最终存储的数据是在 `state` 上的，我们之前分析过在 `store.state` 存储的是 `root state`，那么对于模块上的 `state`，假设我们有 `2` 个嵌套的 `modules`，它们的 `key` 分别为 `a` 和 `b`，我们可以通过 `store.state.a.b.xxx` 的方式去获取。它的实现是在发生在 `installModule` 的时候：
 
 ```js
 function installModule (store, rootState, path, module, hot) {
   const isRoot = !path.length
   
   // ...
-  // set state
+  // set state 设置状态
   if (!isRoot && !hot) {
     const parentState = getNestedState(rootState, path.slice(0, -1))
     const moduleName = path[path.length - 1]
@@ -25,7 +25,7 @@ function installModule (store, rootState, path, module, hot) {
 
 在递归执行 `installModule` 的过程中，就完成了整个 `state` 的建设，这样我们就可以通过 `module` 名的 `path` 去访问到一个深层 `module` 的 `state`。
 
-有些时候，我们获取的数据不仅仅是一个 `state`，而是由多个 `state` 计算而来，Vuex 提供了 `getters`，允许我们定义一个 `getter` 函数，如下：
+有些时候，我们获取的数据不仅仅是一个 `state`，而是由多个 `state` 计算而来，`Vuex` 提供了 `getters`，允许我们定义一个 `getter` 函数，如下：
 
 ````js
 getters: {
@@ -64,10 +64,10 @@ function registerGetter (store, type, rawGetter, local) {
   }
   store._wrappedGetters[type] = function wrappedGetter (store) {
     return rawGetter(
-      local.state, // local state
-      local.getters, // local getters
-      store.state, // root state
-      store.getters // root getters
+      local.state, // local state本地state
+      local.getters, // local getters本地getters
+      store.state, // root state根state
+      store.getters // root getters根getters
     )
   }
 }
@@ -75,16 +75,16 @@ function registerGetter (store, type, rawGetter, local) {
 
 function resetStoreVM (store, state, hot) {
   // ...
-  // bind store public getters
+  // bind store public getters绑定store公共getters
   store.getters = {}
   const wrappedGetters = store._wrappedGetters
   const computed = {}
   forEachValue(wrappedGetters, (fn, key) => {
-    // use computed to leverage its lazy-caching mechanism
+    // use computed to leverage its lazy-caching mechanism使用computed来利用其延迟缓存机制
     computed[key] = () => fn(store)
     Object.defineProperty(store.getters, key, {
       get: () => store._vm[key],
-      enumerable: true // for local getters
+      enumerable: true // for local getters为了本地getters
     })
   })
 
