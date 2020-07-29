@@ -1,3 +1,9 @@
+/*
+ * @Author: qiufeihong 
+ * @Date: 2020-07-28 15:51:23 
+ * @Last Modified by: qiufeihong
+ * @Last Modified time: 2020-07-29 10:05:35
+ */
 # API
 
 上一节我们对 `Vuex` 的初始化过程有了深入的分析，在我们构造好这个 `store` 后，需要提供一些 `API` 对这个 `store` 做存取的操作，那么这一节我们就从源码的角度对这些 API 做分析。
@@ -88,9 +94,9 @@ function resetStoreVM (store, state, hot) {
     })
   })
 
-  // use a Vue instance to store the state tree
-  // suppress warnings just in case the user has added
-  // some funky global mixins
+  // use a Vue instance to store the state tree用一个Vue实例去存储状态树
+  // suppress warnings just in case the user has added删除警告，以防用户已经添加
+  // some funky global mixins一些时髦的global混合
   // ...
   store._vm = new Vue({
     data: {
@@ -107,7 +113,7 @@ function resetStoreVM (store, state, hot) {
 
 ## 数据存储
 
-Vuex 对数据存储的存储本质上就是对 `state` 做修改，并且只允许我们通过提交 `mutaion` 的形式去修改 `state`，`mutation` 是一个函数，如下：
+`Vuex` 对数据存储的存储本质上就是对 `state` 做修改，并且只允许我们通过提交 `mutaion` 的形式去修改 `state`，`mutation` 是一个函数，如下：
     
 ```js
 mutations: {
@@ -157,7 +163,7 @@ commit (_type, _payload, _options) {
   const entry = this._mutations[type]
   if (!entry) {
     if (process.env.NODE_ENV !== 'production') {
-      console.error(`[vuex] unknown mutation type: ${type}`)
+      console.error(`[vuex] unknown mutation type: ${type}`) //vuex不知道mutation的类型
     }
     return
   }
@@ -175,14 +181,14 @@ commit (_type, _payload, _options) {
     console.warn(
       `[vuex] mutation type: ${type}. Silent option has been removed. ` +
       'Use the filter functionality in the vue-devtools'
-    )
+    )//vuex mutation类型。无声选项已被移除。使用vue-devtools中的过滤器功能
   }
 }
 ```
 
 这里传入的 `_type` 就是 `mutation` 的 `type`，我们可以从 `store._mutations` 找到对应的函数数组，遍历它们执行获取到每个 `handler` 然后执行，实际上就是执行了 `wrappedMutationHandler(playload)`，接着会执行我们定义的 `mutation` 函数，并传入当前模块的 `state`，所以我们的 `mutation` 函数也就是对当前模块的 `state` 做修改。
 
-需要注意的是， `mutation` 必须是同步函数，但是我们在开发实际项目中，经常会遇到要先去发送一个请求，然后根据请求的结果去修改 `state`，那么单纯只通过 `mutation` 是无法完成需求，因此 Vuex 又给我们设计了一个 `action` 的概念。
+需要注意的是， `mutation` 必须是同步函数，但是我们在开发实际项目中，经常会遇到要先去发送一个请求，然后根据请求的结果去修改 `state`，那么单纯只通过 `mutation` 是无法完成需求，因此 `Vuex` 又给我们设计了一个 `action` 的概念。
 
 `action` 类似于 `mutation`，不同在于 `action` 提交的是 `mutation`，而不是直接操作 `state`，并且它可以包含任意异步操作。例如：
 
@@ -249,7 +255,7 @@ function registerAction (store, type, handler, local) {
 
 ```js
 dispatch (_type, _payload) {
-  // check object-style dispatch
+  // check object-style dispatch 检查object-style的dispatch
   const {
     type,
     payload
@@ -279,7 +285,7 @@ dispatch (_type, _payload) {
 
 ## 语法糖
 
-我们知道 `store` 是 `Store` 对象的一个实例，它是一个原生的 Javascript 对象，我们可以在任意地方使用它们。但大部分的使用场景还是在组件中使用，那么我们之前介绍过，在 Vuex 安装阶段，它会往每一个组件实例上混入 `beforeCreate` 钩子函数，然后往组件实例上添加一个 `$store` 的实例，它指向的就是我们实例化的 `store`，因此我们可以在组件中访问到 `store` 的任何属性和方法。
+我们知道 `store` 是 `Store` 对象的一个实例，它是一个原生的 `Javascript` 对象，我们可以在任意地方使用它们。但大部分的使用场景还是在组件中使用，那么我们之前介绍过，在 `Vuex` 安装阶段，它会往每一个组件实例上混入 `beforeCreate` 钩子函数，然后往组件实例上添加一个 `$store` 的实例，它指向的就是我们实例化的 `store`，因此我们可以在组件中访问到 `store` 的任何属性和方法。
 
 比如我们在组件中访问 `state`：
 
@@ -296,7 +302,7 @@ const Counter = {
 
 但是当一个组件需要获取多个状态时候，将这些状态都声明为计算属性会有些重复和冗余。同样这些问题也在存于 `getter`、`mutation` 和 `action`。
 
-为了解决这个问题，Vuex 提供了一系列 `mapXXX` 辅助函数帮助我们实现在组件中可以很方便的注入 `store` 的属性和方法。
+为了解决这个问题，`Vuex` 提供了一系列 `mapXXX` 辅助函数帮助我们实现在组件中可以很方便的注入 `store` 的属性和方法。
 
 ### `mapState`
 
@@ -344,7 +350,7 @@ export const mapState = normalizeNamespace((namespace, states) => {
         ? val.call(this, state, getters)
         : state[val]
     }
-    // mark vuex getter for devtools
+    // mark vuex getter for devtools 为devtools做上vuex getter的标志
     res[key].vuex = true
   })
   return res
@@ -369,7 +375,7 @@ function normalizeMap (map) {
 }
 ```
 
-首先 `mapState` 是通过执行 `normalizeNamespace` 返回的函数，它接收 2 个参数，其中 `namespace` 表示命名空间，`map` 表示具体的对象，`namespace` 可不传，稍后我们来介绍 `namespace` 的作用。
+首先 `mapState` 是通过执行 `normalizeNamespace` 返回的函数，它接收 `2` 个参数，其中 `namespace` 表示命名空间，`map` 表示具体的对象，`namespace` 可不传，稍后我们来介绍 `namespace` 的作用。
 
 当执行 `mapState(map)` 函数的时候，实际上就是执行 `normalizeNamespace` 包裹的函数，然后把 `map` 作为参数 `states` 传入。
 
@@ -411,14 +417,14 @@ function getModuleByNamespace (store, helper, namespace) {
 }
 ```
 
-我们在 Vuex 初始化执行 `installModule` 的过程中，初始化了这个映射表：
+我们在 `Vuex` 初始化执行 `installModule` 的过程中，初始化了这个映射表：
 
 ```js
 function installModule (store, rootState, path, module, hot) {
   // ...
   const namespace = store._modules.getNamespace(path)
 
-  // register in namespace map
+  // register in namespace map 注册在命名空间map中
   if (module.namespaced) {
     store._modulesNamespaceMap[namespace] = module
   }
@@ -453,7 +459,7 @@ export default {
 export const mapGetters = normalizeNamespace((namespace, getters) => {
   const res = {}
   normalizeMap(getters).forEach(({ key, val }) => {
-    // thie namespace has been mutate by normalizeNamespace
+    // thie namespace has been mutate by normalizeNamespace这个名称空间已经被normalizeNamespace改变了
     val = namespace + val
     res[key] = function mappedGetter () {
       if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
@@ -465,7 +471,7 @@ export const mapGetters = normalizeNamespace((namespace, getters) => {
       }
       return this.$store.getters[val]
     }
-    // mark vuex getter for devtools
+    // mark vuex getter for devtools 为devtools做上vuex getter的标志
     res[key].vuex = true
   })
   return res
@@ -506,7 +512,7 @@ export const mapMutations = normalizeNamespace((namespace, mutations) => {
   const res = {}
   normalizeMap(mutations).forEach(({ key, val }) => {
     res[key] = function mappedMutation (...args) {
-      // Get the commit method from store
+      // Get the commit method from store 从store中获取commit方法
       let commit = this.$store.commit
       if (namespace) {
         const module = getModuleByNamespace(this.$store, 'mapMutations', namespace)
@@ -537,7 +543,7 @@ export const mapActions = normalizeNamespace((namespace, actions) => {
   const res = {}
   normalizeMap(actions).forEach(({ key, val }) => {
     res[key] = function mappedAction (...args) {
-      // get dispatch function from store
+      // get dispatch function from store 从store中获取dispatch方法
       let dispatch = this.$store.dispatch
       if (namespace) {
         const module = getModuleByNamespace(this.$store, 'mapActions', namespace)
@@ -559,20 +565,20 @@ export const mapActions = normalizeNamespace((namespace, actions) => {
 
 ## 动态更新模块
 
-在 Vuex 初始化阶段我们构造了模块树，初始化了模块上各个部分。在有一些场景下，我们需要动态去注入一些新的模块，Vuex 提供了模块动态注册功能，在 `store` 上提供了一个 `registerModule` 的 API。
+在 `Vuex` 初始化阶段我们构造了模块树，初始化了模块上各个部分。在有一些场景下，我们需要动态去注入一些新的模块，`Vuex` 提供了模块动态注册功能，在 `store` 上提供了一个 `registerModule` 的 `API`。
 
 ```js
 registerModule (path, rawModule, options = {}) {
   if (typeof path === 'string') path = [path]
 
   if (process.env.NODE_ENV !== 'production') {
-    assert(Array.isArray(path), `module path must be a string or an Array.`)
-    assert(path.length > 0, 'cannot register the root module by using registerModule.')
+    assert(Array.isArray(path), `module path must be a string or an Array.`)//模块路径必须是一个字符串或者一个数组
+    assert(path.length > 0, 'cannot register the root module by using registerModule.')//不能通过registerModule注册根模块
   }
 
   this._modules.register(path, rawModule)
   installModule(this, this.state, path, this._modules.get(path), options.preserveState)
-  // reset store to update getters...
+  // reset store to update getters... 重置store去更新getters
   resetStoreVM(this, this.state)
 }
 ```
@@ -620,9 +626,9 @@ function resetStore (store, hot) {
   store._wrappedGetters = Object.create(null)
   store._modulesNamespaceMap = Object.create(null)
   const state = store.state
-  // init all modules
+  // init all modules 初始化所有模块
   installModule(store, state, [], store._modules.root, true)
-  // reset vm
+  // reset vm 重置vm
   resetStoreVM(store, state, hot)
 }
 ```
@@ -631,4 +637,4 @@ function resetStore (store, hot) {
 
 ## 总结
 
-那么至此，Vuex 提供的一些常用 API 我们就分析完了，包括数据的存取、语法糖、模块的动态更新等。要理解 Vuex 提供这些 API 都是方便我们在对 `store` 做各种操作来完成各种能力，尤其是 `mapXXX` 的设计，让我们在使用 API 的时候更加方便，这也是我们今后在设计一些 JavaScript 库的时候，从 API 设计角度中应该学习的方向。
+那么至此，`Vuex` 提供的一些常用 `API` 我们就分析完了，包括数据的存取、语法糖、模块的动态更新等。要理解 `Vuex` 提供这些 `API` 都是方便我们在对 `store` 做各种操作来完成各种能力，尤其是 `mapXXX` 的设计，让我们在使用 `API` 的时候更加方便，这也是我们今后在设计一些 `JavaScript` 库的时候，从 `API` 设计角度中应该学习的方向。
