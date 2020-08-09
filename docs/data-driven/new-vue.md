@@ -1,6 +1,6 @@
 # new Vue 发生了什么
  
- 从入口代码开始分析，我们先来分析 `new Vue` 背后发生了哪些事情。我们都知道，`new` 关键字在 Javascript 语言中代表实例化是一个对象，而 `Vue` 实际上是一个类，类在 Javascript 中是用 Function 来实现的，来看一下源码，在`src/core/instance/index.js` 中。
+ 从入口代码开始分析，我们先来分析 `new Vue` 背后发生了哪些事情。我们都知道，`new` 关键字在 `Javascript` 语言中代表实例化是一个对象，而 `Vue` 实际上是一个类，类在 `Javascript` 中是用 `Function` 来实现的，来看一下源码，在`src/core/instance/index.js` 中。
  
 > vue/src/core/instance/index.js
 
@@ -30,8 +30,8 @@ renderMixin(Vue)
 export default Vue
 
 ```
-- 如果不是生产环境和Vue类型,给一个警告`Vue is a constructor and should be called with the new keyword`
-- 可以看到 `Vue` 只能通过 new 关键字初始化，然后会调用 `this._init` 方法， 该方法在 `src/core/instance/init.js` 中定义。
+- 如果不是生产环境和Vue类型,给一个警告`Vue is a constructor and should be called with the new keyword`,意思是“Vue是一个构造函数，应该使用new关键字调用它”。
+- 可以看到 `Vue` 只能通过 `new` 关键字初始化，然后会调用 `this._init` 方法， 该方法在 `src/core/instance/init.js` 中定义。
 
 > vue/src/core/instance/init.js
 
@@ -64,9 +64,9 @@ export function initMixin (Vue: Class<Component>) {
       mark(startTag)
     }
 
-    // a flag to avoid this being observed
+    // 一个避免被观察到的标志
     vm._isVue = true
-    // merge options
+    // 合并选项
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -88,15 +88,15 @@ export function initMixin (Vue: Class<Component>) {
     } else {
       vm._renderProxy = vm
     }
-    // expose real self
+    // 暴露真实的自我
     vm._self = vm
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
     callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
+    initInjections(vm) // resolve injections before data/props 在data/props前resolve injections
     initState(vm)
-    initProvide(vm) // resolve provide after data/props
+    initProvide(vm) // resolve provide after data/props 在data/props后resolve provide
     callHook(vm, 'created')
  
     /* istanbul ignore if */
@@ -111,10 +111,10 @@ export function initMixin (Vue: Class<Component>) {
     }
   }
 }
-
+// 初始化内部函数
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
-  // doing this because it's faster than dynamic enumeration.
+  // 做下面的操作是因为比动态枚举快
   const parentVnode = options._parentVnode
   opts.parent = options.parent
   opts._parentVnode = parentVnode
@@ -170,14 +170,14 @@ function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
 }
 
 function dedupe (latest, extended, sealed) {
-  // compare latest and sealed to ensure lifecycle hooks won't be duplicated
-  // between merges
+  // compare latest and sealed to ensure lifecycle hooks won't be duplicated 比较最新的和密封的确保生命周期钩子不重复 
+  // between merges 之间的合并
   if (Array.isArray(latest)) {
     const res = []
     sealed = Array.isArray(sealed) ? sealed : [sealed]
     extended = Array.isArray(extended) ? extended : [extended]
     for (let i = 0; i < latest.length; i++) {
-      // push original options and not sealed options to exclude duplicated options
+      // push原始选项和非密封选项，以排除重复的选项
       if (extended.indexOf(latest[i]) >= 0 || sealed.indexOf(latest[i]) < 0) {
         res.push(latest[i])
       }
@@ -190,10 +190,10 @@ function dedupe (latest, extended, sealed) {
 
 ```
 
-Vue 初始化主要就干了几件事情，合并配置mergeOptions，初始化生命周期initLifecycle，初始化事件中心initEvents，初始化渲染initRender，初始化 data、props、computed、watcher 等等。
+`Vue` 初始化主要就干了几件事情，合并配置 `mergeOptions`，初始化生命周期 `initLifecycle`，初始化事件中心 `initEvents` ，初始化渲染 `initRender` ，初始化 `data` 、 `props` 、 `computed` 、 `watcher` 等等。
 
 ## 总结
 
-Vue 的初始化逻辑写的非常清楚，把不同的功能逻辑拆成一些单独的函数执行，让主线逻辑一目了然，这样的编程思想是非常值得借鉴和学习的。
+`Vue` 的初始化逻辑写的非常清楚，把不同的功能逻辑拆成一些单独的函数执行，让主线逻辑一目了然，这样的编程思想是非常值得借鉴和学习的。
 
-由于我们这一章的目标是弄清楚模板和数据如何渲染成最终的 DOM，所以各种初始化逻辑我们先不看。在初始化的最后，检测到如果有 `el` 属性，则调用 `vm.$mount` 方法挂载 `vm`，挂载的目标就是把模板渲染成最终的 DOM，那么接下来我们来分析 Vue 的挂载过程。
+由于我们这一章的目标是弄清楚模板和数据如何渲染成最终的 `DOM` ，所以各种初始化逻辑我们先不看。在初始化的最后，检测到如果有 `el` 属性，则调用 `vm.$mount` 方法挂载 `vm`，挂载的目标就是把模板渲染成最终的 `DOM` ，那么接下来我们来分析 `Vue` 的挂载过程。
