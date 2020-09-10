@@ -1,6 +1,6 @@
 # 响应式对象
 
-可能很多小伙伴之前都了解过 Vue.js 实现响应式的核心是利用了 ES5 的 `Object.defineProperty`，这也是为什么 Vue.js 不能兼容 IE8 及以下浏览器的原因，我们先来对它有个直观的认识。
+可能很多小伙伴之前都了解过 `Vue.js` 实现响应式的核心是利用了 `ES5` 的 `Object.defineProperty`，这也是为什么 `Vue.js` 不能兼容 `IE8` 及以下浏览器的原因，我们先来对它有个直观的认识。
 
 ## Object.defineProperty    
 
@@ -12,13 +12,13 @@ Object.defineProperty(obj, prop, descriptor)
 
 `obj` 是要在其上定义属性的对象；`prop` 是要定义或修改的属性的名称；`descriptor` 是将被定义或修改的属性描述符。
 
-比较核心的是 `descriptor`，它有很多可选键值，具体的可以去参阅它的[文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)。这里我们最关心的是 `get` 和 `set`，`get` 是一个给属性提供的 getter 方法，当我们访问了该属性的时候会触发 getter 方法；`set` 是一个给属性提供的 setter 方法，当我们对该属性做修改的时候会触发 setter 方法。
+比较核心的是 `descriptor`，它有很多可选键值，具体的可以去参阅它的[文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)。这里我们最关心的是 `get` 和 `set`，`get` 是一个给属性提供的 `getter` 方法，当我们访问了该属性的时候会触发 `getter` 方法；`set` 是一个给属性提供的 `setter` 方法，当我们对该属性做修改的时候会触发 `setter` 方法。
 
-一旦对象拥有了 getter 和 setter，我们可以简单地把这个对象称为响应式对象。那么 Vue.js 把哪些对象变成了响应式对象了呢，接下来我们从源码层面分析。
+一旦对象拥有了 `getter` 和 `setter`，我们可以简单地把这个对象称为响应式对象。那么 `Vue.js` 把哪些对象变成了响应式对象了呢，接下来我们从源码层面分析。
 
 ## initState
 
-在 Vue 的初始化阶段，`_init` 方法执行的时候，会执行 `initState(vm)` 方法，它的定义在 `src/core/instance/state.js` 中。
+在 `Vue` 的初始化阶段，`_init` 方法执行的时候，会执行 `initState(vm)` 方法，它的定义在 `src/core/instance/state.js` 中。
 
 ```js
 export function initState (vm: Component) {
@@ -47,12 +47,12 @@ function initProps (vm: Component, propsOptions: Object) {
   const props = vm._props = {}
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
-  //缓存prop键，以便将来的道具更新可以使用Array进行迭代
+  //缓存prop键，以便将来的props更新可以使用Array进行迭代
    //而不是动态对象键枚举。
   const keys = vm.$options._propKeys = []
   const isRoot = !vm.$parent
   // root instance props should be converted
-  //应该转换根实例道具
+  //应该转换根实例props
   if (!isRoot) {
     toggleObserving(false)
   }
@@ -88,8 +88,8 @@ function initProps (vm: Component, propsOptions: Object) {
     // static props are already proxied on the component's prototype
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
-    //静态道具已经代理了组件的原型
-     //在Vue.extend（）期间。 我们只需要代理定义的道具
+    //静态props已经代理了组件的原型
+     //在Vue.extend()期间。 我们只需要代理定义的props
      //在这里实例化
     if (!(key in vm)) {
       proxy(vm, `_props`, key)
@@ -113,7 +113,7 @@ function initData (vm: Component) {
     process.env.NODE_ENV !== 'production' && warn(
       'data functions should return an object:\n' +
       'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
-      // '数据函数应该返回一个对象：\ n'+
+      // 'data函数应该返回一个对象：\ n'+
 //       'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function'，
       vm
     )
@@ -159,7 +159,7 @@ function initData (vm: Component) {
 
 ## proxy
 
-首先介绍一下代理，代理的作用是把 `props` 和 `data` 上的属性代理到 `vm` 实例上，这也就是为什么比如我们定义了如下 props，却可以通过 vm 实例访问到它。
+首先介绍一下代理，代理的作用是把 `props` 和 `data` 上的属性代理到 `vm` 实例上，这也就是为什么比如我们定义了如下 `props`，却可以通过 `vm` 实例访问到它。
 
 ```js
 let comP = {
@@ -235,11 +235,11 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 }
 ```
 
-`observe` 方法的作用就是给非 VNode 的对象类型数据添加一个 `Observer`，如果已经添加过则直接返回，否则在满足一定条件下去实例化一个 `Observer` 对象实例。接下来我们来看一下 `Observer` 的作用。
+`observe` 方法的作用就是给非 `VNode` 的对象类型数据添加一个 `Observer`，如果已经添加过则直接返回，否则在满足一定条件下去实例化一个 `Observer` 对象实例。接下来我们来看一下 `Observer` 的作用。
 
 ## Observer
 
-`Observer` 是一个类，它的作用是给对象的属性添加 getter 和 setter，用于依赖收集和派发更新：
+`Observer` 是一个类，它的作用是给对象的属性添加 `getter` 和 `setter`，用于依赖收集和派发更新：
 
 ```js
 /**
@@ -331,14 +331,14 @@ export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
 
 ## defineReactive
 
-`defineReactive` 的功能就是定义一个响应式对象，给对象动态添加 getter 和 setter，它的定义在 `src/core/observer/index.js` 中：
+`defineReactive` 的功能就是定义一个响应式对象，给对象动态添加 `getter` 和 `setter`，它的定义在 `src/core/observer/index.js` 中：
 
 ```js
 /**
  * Define a reactive property on an Object.
  */
 /**
-  *在Object上定义反应属性。
+  *在Object上定义响应式属性。
  */
 export function defineReactive (
   obj: Object,
@@ -355,6 +355,7 @@ export function defineReactive (
   }
 
   // cater for pre-defined getter/setters
+  // 迎合预定义的getter/setters
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) {
@@ -400,11 +401,8 @@ export function defineReactive (
 }
 ```
 
-`defineReactive` 函数最开始初始化 `Dep` 对象的实例，接着拿到 `obj` 的属性描述符，然后对子对象递归调用 `observe` 方法，这样就保证了无论 `obj` 的结构多复杂，它的所有子属性也能变成响应式的对象，这样我们访问或修改 `obj` 中一个嵌套较深的属性，也能触发 getter 和 setter。最后利用 `Object.defineProperty` 去给 `obj` 的属性 `key` 添加 getter 和 setter。而关于 getter 和 setter 的具体实现，我们会在之后介绍。
+`defineReactive` 函数最开始初始化 `Dep` 对象的实例，接着拿到 `obj` 的属性描述符，然后对子对象递归调用 `observe` 方法，这样就保证了无论 `obj` 的结构多复杂，它的所有子属性也能变成响应式的对象，这样我们访问或修改 `obj` 中一个嵌套较深的属性，也能触发 `getter` 和 `setter`。最后利用 `Object.defineProperty` 去给 `obj` 的属性 `key` 添加 `getter` 和 `setter`。而关于 `getter` 和 `setter` 的具体实现，我们会在之后介绍。
 
 ## 总结
 
-这一节我们介绍了响应式对象，核心就是利用 `Object.defineProperty` 给数据添加了 getter 和 setter，目的就是为了在我们访问数据以及写数据的时候能自动执行一些逻辑：getter 做的事情是依赖收集，setter 做的事情是派发更新，那么在接下来的章节我们会重点对这两个过程分析。
- 
-
-
+这一节我们介绍了响应式对象，核心就是利用 `Object.defineProperty` 给数据添加了 `getter` 和 `setter`，目的就是为了在我们访问数据以及写数据的时候能自动执行一些逻辑：`getter` 做的事情是依赖收集，`setter` 做的事情是派发更新，那么在接下来的章节我们会重点对这两个过程分析。
